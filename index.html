@@ -42,7 +42,7 @@
 			font-size: 1.2rem;
 			margin: .5rem 0;
 		}
-		.form.error input{
+		.form.error input
 			outline-color: #ff3344;
 			color: #ff3344;
 		}
@@ -52,7 +52,251 @@
 		.container button{
 			padding: 1rem 2rem;
 			font-size: 1.2rem;
+			margin: .5rem 0;<!DOCTYPE html>
+<html>
+<head>
+	<title>Google Drive direct link generator</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+	<style>
+		*{
+			box-sizing: border-box;
+			padding: 0;
+			margin:0;
+		}
+
+		.container{
+			background-color: #222233;
+			color: #999;
+			padding: 4.5rem;
+			font-family: sans-serif, arial;
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.container h1{
+			color: #8822ff;
+			font-size: 1.7rem;
+			text-align: center;
+			margin-bottom: 2rem;
+		}
+
+		.container input{
+			width: 90vw;
+			max-width: 800px;
+			padding: 1rem;
+			font-size: 1.2rem;
 			margin: .5rem 0;
+			background-color: #181828;
+			border:solid 1px #333344;
+			border-radius: 3px;
+			outline: none;
+			color:#fff;
+			transition: border 200ms;
+		}
+		.container input:focus{
+			border:solid 1px #666677;
+		}
+		.form.error input{
+			border:solid 1px #ff3344;
+		}
+		.container input::placeholder{
+			color:rgba(255,255,255,.2);
+		}
+		.container button{
+			padding: 1rem 2rem;
+			font-size: 1.2rem;
+			margin: .5rem 0;
+			min-height: 60px;
+			background-color: #8822ff;
+			color: #fff;
+			border:none;
+			outline: none;
+			border-radius: 3px;
+			cursor: pointer;
+			transition: filter 100ms;
+			box-shadow: 0px 10px 18px 2px rgba(136, 34 ,255 ,38%);
+		}
+		.container button:hover{filter:brightness(1.1);}
+		.container .result{
+		    width: auto;
+			text-align: center;
+			font-size: .9rem;
+			opacity: 0;
+			transition: opacity 100ms;
+		}
+		.container .result .link{
+			display: inline-block;
+			width: 100%;
+		    background: rgba(255,255,255,.1);
+			color: #888;
+		    padding: .5rem 1rem;
+		    border-radius: 5px;
+		    line-height: 2rem;
+		}
+		.container .result.active{
+			opacity: 1;
+		}
+
+		.container .result .file-id{
+			color: #999;
+			font-weight: bold;
+		}
+		.copied-toast{
+			display: block;
+			background-color: #fff;
+			color: #222;
+			margin-top: 1.5rem;
+			margin-bottom: 0.5rem;
+			font-size: .8rem;
+			padding: 5px 20px;
+			border-radius: 18px;
+			opacity: 0;
+			transform: translateY(10px);
+			transition: opacity 100ms, transform 60ms;
+		}.copied-toast.copied{
+			animation:CopiedToast 1s ease-in 0s;
+		}
+		@-webkit-keyframes CopiedToast {
+			from {transform: translateY(10px); opacity: 0;}
+			10%  {transform: translateY(0px); opacity: 1;}
+			80%  {transform: translateY(0px); opacity: 1;}
+			to   {transform: translateY(10px); opacity: 0;}
+		}
+
+		.inv{
+			color: #ff3344;
+			opacity: 0;
+		}
+		.form.error .inv{
+			opacity: 1;
+		}
+
+		.btn {
+			position: relative;
+			overflow: hidden;
+		}
+		.btn span{
+			position: absolute;
+			background: #fff;
+			width: 500px;
+			height: 500px;
+			pointer-events: none;
+			border-radius: 50%;
+			animation: PulseAnim 1s linear;
+		}
+		@-webkit-keyframes PulseAnim {
+			from {transform: translate(-50%, -50%) scale(0); opacity: 0.2;}
+			to   {transform: translate(-50%, -50%) scale(1); opacity: 0;}
+		}
+	</style>
+</head>
+<body>
+
+	<div class="container">
+		<h1>Google drive direct link generator</h1>
+		<div class="form">
+			<label>File link : <span class="inv">invalid google drive link!</span></label><br>
+			<input id="link" type="text" placeholder="https://drive.google.com/file/d/FILE_ID/view?usp=sharing">
+		</div>
+		<button class="btn">
+			Generate & Copy
+		</button>
+		<span class="copied-toast">Copied.</span>
+		<div class="result">
+			<span class="link">https://drive.google.com/uc?export=download&id=<span class="file-id">FILE_ID</span></span>
+
+		</div>
+	</div>
+
+	<script>
+		const button = document.querySelector(".container button");
+		const input = document.querySelector(".container input");
+		const result = document.querySelector(".result");
+		const copiedToast = document.querySelector(".copied-toast");
+		const fileIdSpan = document.querySelector(".result .file-id");
+		const form = document.querySelector(".form");
+
+		let isValid = false;
+
+		input.addEventListener("input",()=>{
+			isValid = input.value.trim().match(/^https:\/\/drive\.google\.com\/file\/d\/\S+\/view\?usp=sharing$/) != null;
+			console.log(isValid);
+
+			if (isValid || input.value.trim()=="")
+				form.classList.remove("error")
+			else
+				form.classList.add("error")
+		})
+
+		button.addEventListener("click",()=>{
+			if (!isValid || input.value.trim()==""){
+				result.classList.remove("active");
+				input.focus();
+				return;
+			}
+			let fileDefaultLink = input.value.trim();
+
+			let fileId = new RegExp(/d\/\S+\/view/).exec(fileDefaultLink);
+			if (fileId == null){
+				input.focus();
+				return;
+			}
+			fileId = fileId[0];
+			fileId = fileId.substr(2, fileId.length-7);
+
+			let fileDirectLink = "https://drive.google.com/uc?export=download&id="+fileId;
+
+			fileIdSpan.innerText = fileId;
+
+			CopyTextToClipboard(fileDirectLink);
+
+			//anims -----------------------------------------
+			result.classList.remove("active");
+			setTimeout(() => result.classList.add("active"),50);
+
+			copiedToast.classList.remove("copied");
+			setTimeout(() => copiedToast.classList.add("copied"),0);
+		})
+
+		function CopyTextToClipboard(text){
+			let tempInput = document.createElement("input");
+			tempInput.style.opacity = 0;
+			tempInput.value = text;
+			document.body.append(tempInput);
+
+			tempInput.select();
+			document.execCommand("copy");
+
+			document.body.removeChild(tempInput);
+		}
+
+
+
+
+
+		const buttons = document.querySelectorAll(".btn");
+		buttons.forEach( btn => btn.addEventListener("mousedown", OnButtonClick) );
+
+		function OnButtonClick(e){
+			let x = e.clientX - e.target.offsetLeft;
+			let y = e.clientY - e.target.offsetTop;
+
+			let dot = document.createElement("span");
+			dot.style.left = `${x}px`;
+			dot.style.top = `${y}px`;
+
+			e.target.appendChild(dot);
+			setTimeout(()=>dot.remove(), 1000);
+		}
+
+	</script>
+
+</body>
+</html>
 			background-color: #8822ff;
 			color: #fff;
 			border:none;
