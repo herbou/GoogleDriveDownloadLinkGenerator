@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Google Drive direct link generator</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+	<style>
+		*{
+			box-sizing: border-box;
+			padding: 0;
+			margin:0;
+		}
+
+		.container{
+			background-color: #ffffff;
+			color: #222222;
+			padding: 4.5rem;
+			font-family: sans-serif, arial;
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.container h1{
+			color: #8822ff;
+			font-size: 1.7rem;
+			text-align: center;
+			margin-bottom: 2rem;
+			flex:1;
+		}
+
+		.container div{
+			flex:1fr;
+		}
+
+		.container input{
+			width: 90vw;
+			max-width: 800px;
+			padding: 1rem;
+			font-size: 1.2rem;
+			margin: .5rem 0;
+		}
+		.form.error input{
+			outline-color: #ff3344;
+			color: #ff3344;
+		}
+		.container input::placeholder{
+			color:#ccc;
+		}
+		.container button{
+			padding: 1rem 2rem;
+			font-size: 1.2rem;
+			margin: .5rem 0;
+			background-color: #8822ff;
+			color: #fff;
+			border:none;
+			outline: none;
+			border-radius: 6px;
+			cursor: pointer;
+			transition: filter 100ms;
+			box-shadow: 0px 6px 11px 0px #8822ff5e;
+		}
+		
+		.container button:hover{filter:brightness(1.2);}
+		.container button:active{filter:brightness(0.9);}
+		.container .result{
+			position: relative;
+		    width: auto;
+			flex:1;
+			margin-top: 2rem;
+			text-align: center;
+			opacity: 0;
+			transition: opacity 100ms;
+		}
+		.container .result .link{
+			display: block;
+			width: 100%;
+		    background: #f3f3f3;
+			color: #778;
+		    padding: .5rem 1rem;
+		    border-radius: 5px;
+		    line-height: 2rem;
+		}
+		.container .result.active{
+			opacity: 1;
+		}
+
+		.container .result .file-id{
+			color: #555;
+			font-weight: bold;
+		}
+		.copied-toast{
+			position: absolute;
+			display: block;
+			background-color: #222;
+			color: #fff;
+			font-size: .8rem;
+			padding: 5px 20px;
+			border-radius: 18px;
+			opacity: 0;
+			left: 50%;
+			transform: translate(-50%,-245%);
+			transition: opacity 100ms, transform 200ms;
+		}.copied-toast.copied{
+			opacity: .6;
+			transform: translate(-50%,-300%);
+		}
+
+		.inv{
+			color: #ff3344;
+			opacity: 0;
+		}
+		.form.error .inv{
+			opacity: 1;
+		}
+
+	</style>
+</head>
+<body>
+
+	<div class="container">
+		<h1>Google drive direct link generator</h1>
+		<div class="form">
+			<label>File link : <span class="inv">invalid google drive link!</span></label><br>
+			<input id="link" type="text" placeholder="https://drive.google.com/file/d/FILE_ID/view?usp=sharing">
+		</div>
+		<button>
+			Generate & Copy
+		</button>
+		<div class="result">
+			<span class="link">https://drive.google.com/uc?export=download&id=<span class="file-id">FILE_ID</span></span>
+
+			<span class="copied-toast">copied &square;</span>
+		</div>
+	</div>
+
+	<script>
+		const button = document.querySelector(".container button");
+		const input = document.querySelector(".container input");
+		const result = document.querySelector(".result");
+		const copiedToast = document.querySelector(".copied-toast");
+		const fileIdSpan = document.querySelector(".result .file-id");
+		const form = document.querySelector(".form");
+
+		input.addEventListener("input",()=>{
+			if (input.value.trim().match(/^http\S+sharing$/) || input.value.trim()=="")
+				form.classList.remove("error")
+			else
+				form.classList.add("error")
+		})
+
+		button.addEventListener("click",()=>{
+			if (input.value.trim()==""){
+				input.focus();
+				return;
+			}
+			let fileDefaultLink = input.value;
+
+			let fileId = new RegExp(/d\/\S+\/view/).exec(fileDefaultLink);
+			if (fileId == null){
+				input.focus();
+				return;
+			}
+			fileId = fileId[0];
+			fileId = fileId.substr(2, fileId.length-7);
+
+			let fileDirectLink = "https://drive.google.com/uc?export=download&id="+fileId;
+
+			fileIdSpan.innerText = fileId;
+
+			CopyTextToClipboard(fileDirectLink);
+
+			//anims -----------------------------------------
+			result.classList.remove("active");
+			setTimeout(()=>result.classList.add("active"),80);
+
+			copiedToast.classList.add("copied");
+			setTimeout(()=>{
+				copiedToast.classList.remove("copied");
+			},1000);
+		})
+
+		function CopyTextToClipboard(text){
+			let tempInput = document.createElement("input");
+			tempInput.style.opacity = 0;
+			tempInput.value = text;
+			document.body.append(tempInput);
+
+			tempInput.select();
+			document.execCommand("copy");
+
+			document.body.removeChild(tempInput);
+		}
+	</script>
+
+</body>
+</html>
