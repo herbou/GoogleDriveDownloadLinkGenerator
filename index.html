@@ -183,7 +183,7 @@
 		
 		input.focus();
 		input.addEventListener("input",()=>{
-			isValid = input.value.trim().match(/^https:\/\/drive\.google\.com\/file\/d\/\S+\/view\?usp=sharing$/) != null;
+			isValid = input.value.trim().match(/^https:\/\/drive\.google\.com\/file\/d\/\S+\/view\?usp=\S$/) != null;
 			console.log(isValid);
 
 			if (isValid || input.value.trim()=="")
