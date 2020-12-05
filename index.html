@@ -3,6 +3,7 @@
 <head>
 	<title>Google Drive direct link generator</title>
 	<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+	<meta name="theme-color" content="#8822ff">
 	<style>
 		*{
 			box-sizing: border-box;
@@ -23,31 +24,39 @@
 			align-items: center;
 		}
 
+		.header{
+			display: flex;
+			align-items: center;
+			margin-bottom: 3rem;
+		}
+		.header img{
+			height: 4rem;
+		}
+
 		.container h1{
-			color: #8822ff;
-			font-size: 1.7rem;
-			text-align: center;
-			margin-bottom: 2rem;
+			color: #7755ff;
+			font-size: 1.5rem;
+			margin-left: 1rem;
 		}
 
 		.container input{
 			width: 90vw;
 			max-width: 800px;
-			padding: 1rem;
+			padding: .3rem 0;
 			font-size: 1.2rem;
-			margin: .5rem 0;
-			background-color: #181828;
-			border:solid 1px #333344;
-			border-radius: 3px;
+			margin: .8rem 0;
+			background-color: transparent;
+			border:none;
+			border-bottom:solid 3px #333344;
 			outline: none;
 			color:#fff;
 			transition: border 200ms;
 		}
 		.container input:focus{
-			border:solid 1px #666677;
+			border-bottom:solid 3px #666677;
 		}
 		.form.error input{
-			border:solid 1px #ff3344;
+			border-bottom:solid 3px #ff3344;
 		}
 		.container input::placeholder{
 			color:rgba(255,255,255,.2);
@@ -64,7 +73,8 @@
 			border-radius: 3px;
 			cursor: pointer;
 			transition: filter 100ms;
-			box-shadow: 0px 10px 18px 2px rgba(136, 34 ,255 ,38%);
+			box-shadow: 0px 8px 30px 2px rgba(136, 34 ,255 ,48%);
+			-webkit-tap-highlight-color:transparent;
 		}
 		.container button:hover{filter:brightness(1.1);}
 		.container .result{
@@ -143,7 +153,10 @@
 <body>
 
 	<div class="container">
-		<h1>Google drive direct link generator</h1>
+		<div class="header">
+			<img src="gd-icon.svg" />
+			<h1>Direct Link Generator</h1>
+		</div>
 		<div class="form">
 			<label>File link : <span class="inv">invalid google drive link!</span></label><br>
 			<input id="link" type="text" placeholder="https://drive.google.com/file/d/FILE_ID/view?usp=sharing">
@@ -167,7 +180,8 @@
 		const form = document.querySelector(".form");
 
 		let isValid = false;
-
+		
+		input.focus();
 		input.addEventListener("input",()=>{
 			isValid = input.value.trim().match(/^https:\/\/drive\.google\.com\/file\/d\/\S+\/view\?usp=sharing$/) != null;
 			console.log(isValid);
